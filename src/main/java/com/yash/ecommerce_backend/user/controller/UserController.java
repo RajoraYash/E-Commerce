@@ -1,5 +1,6 @@
 package com.yash.ecommerce_backend.user.controller;
 
+import com.yash.ecommerce_backend.user.UserResponse;
 import com.yash.ecommerce_backend.user.dto.UserRequest;
 import com.yash.ecommerce_backend.user.entity.User;
 import com.yash.ecommerce_backend.user.enums.Role;
@@ -18,13 +19,24 @@ public class UserController {
     }
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User createUser(@Valid @RequestBody UserRequest request){
+    public UserResponse createUser(@Valid @RequestBody UserRequest request){
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
         user.setRole(Role.CUSTOMER);
-        return userService.createUser(user);
+
+        User savedUser = userService.createUser(user);
+        UserResponse response = new UserResponse();
+        response.setId(savedUser.getId());
+        response.setName(savedUser.getName());
+        response.setEmail(savedUser.getEmail());
+        response.setRole(savedUser.getRole());
+        return response;
+    }
+    @GetMapping("/profile")
+    public String profile() {
+        return "You are authenticated!";
     }
 
 }
