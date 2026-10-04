@@ -1,5 +1,5 @@
 package com.yash.ecommerce_backend.user.controller;
-
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.yash.ecommerce_backend.user.UserResponse;
 import com.yash.ecommerce_backend.user.dto.UserRequest;
 import com.yash.ecommerce_backend.user.entity.User;
@@ -7,6 +7,7 @@ import com.yash.ecommerce_backend.user.enums.Role;
 import com.yash.ecommerce_backend.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -37,6 +38,11 @@ public class UserController {
     @GetMapping("/profile")
     public String profile() {
         return "You are authenticated!";
+    }
+    @GetMapping("/admin-test")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String adminTest(){
+        return "Welcome Admin!";
     }
 
 }
