@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Sort;
 
 @RestController
 @RequestMapping("/api/products")
@@ -67,9 +71,14 @@ public class ProductController {
         return response;
     }
     @GetMapping
-    public List<ProductResponse> getAllProducts() {
-        return productService.getAllProducts()
-                .stream()
+    public Page<ProductResponse> getAllProducts(
+            @PageableDefault(
+                    size = 10,
+                    sort = "id",
+                    direction = Sort.Direction.ASC
+            ) Pageable pageable) {
+
+        return productService.getAllProducts(pageable)
                 .map(product -> {
                     ProductResponse response = new ProductResponse();
 
@@ -85,8 +94,7 @@ public class ProductController {
                     response.setUpdatedAt(product.getUpdatedAt());
 
                     return response;
-                })
-                .toList();
+                });
     }
     @PutMapping("/{id}")
     public ProductResponse updateProduct(
@@ -120,4 +128,5 @@ public class ProductController {
     public void deleteProduct(@PathVariable Long id){
         productService.deleteProduct(id);
     }
+
 }

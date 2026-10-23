@@ -7,8 +7,10 @@ import com.yash.ecommerce_backend.product.service.ProductService;
 import org.springframework.stereotype.Service;
 import com.yash.ecommerce_backend.common.exception.ProductNotFoundException;
 import com.yash.ecommerce_backend.common.exception.CategoryNotFoundException;
-
+import com.yash.ecommerce_backend.common.exception.DuplicateSkuException;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -28,6 +30,11 @@ public class ProductServiceImpl implements ProductService {
                        "Category not found with id " + categoryId)
                );
        product.setCategory(category);
+       if(productRepository.existsBySku(product.getSku())){
+           throw new DuplicateSkuException(
+                   "Product already exists with sku " + product.getSku()
+           );
+       }
        return productRepository.save(product);
     }
     @Override
@@ -55,6 +62,13 @@ public class ProductServiceImpl implements ProductService {
         existingProduct.setSku(product.getSku());
         existingProduct.setPrice(product.getPrice());
         existingProduct.setCategory(category);
+        if(productRepository.existsBySkuAndIdNot(
+                product.getSku(),id)){
+            throw new DuplicateSkuException(
+                    "Sku already used by another product: "
+                            +product.getSku()
+            );
+        }
 
         return productRepository.save(existingProduct);
     }
@@ -64,6 +78,10 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(()-> new ProductNotFoundException(
                         "Product not found with id " + id));
             productRepository.delete(product);
+    }
+    @Override
+    public Page<Product> getAllProducts(Pageable pageable){
+        return productRepository.findAll(pageable);
     }
 
 }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import com.yash.ecommerce_backend.common.exception.ProductNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
+import com.yash.ecommerce_backend.common.exception.DuplicateSkuException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -47,5 +48,15 @@ public class GlobalExceptionHandler {
         response.put("status" , 404);
         response.put("message" , exception.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+    @ExceptionHandler(DuplicateSkuException.class)
+    public ResponseEntity<Map<String ,Object>> handleDuplicateSku(
+            DuplicateSkuException exception
+    ){
+        Map<String ,Object> response = new HashMap<>();
+        response.put("status" , 409);
+        response.put("message" , exception.getMessage());
+
+        return  ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 }
