@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -96,6 +98,31 @@ public class ProductController {
                     return response;
                 });
     }
+    @GetMapping("/category/{categoryId}")
+    public Page<ProductResponse> getProductsByCategory(
+            @PathVariable Long categoryId, Pageable pageable
+    ){
+        return productService.getProductsByCategory(categoryId,pageable)
+                .map(this::mapToResponse);
+    }
+    @GetMapping("/filter/price")
+    public Page<ProductResponse> getProductsByPriceRange(
+            @RequestParam BigDecimal minPrice,
+            @RequestParam BigDecimal maxPrice,
+            Pageable pageable
+            ){
+        return productService.getProductsByPriceRange(minPrice,
+                maxPrice,pageable).map(this::mapToResponse);
+
+    }
+    @GetMapping("/search")
+    public Page<ProductResponse> searchProductsByName(
+            @RequestParam String name,
+            Pageable pageable
+    ){
+        return productService.searchProductsByName(name,pageable)
+                .map(this::mapToResponse);
+    }
     @PutMapping("/{id}")
     public ProductResponse updateProduct(
             @PathVariable Long id,
@@ -127,6 +154,22 @@ public class ProductController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProduct(@PathVariable Long id){
         productService.deleteProduct(id);
+    }
+    private ProductResponse mapToResponse(Product product) {
+        ProductResponse response = new ProductResponse();
+
+        response.setId(product.getId());
+        response.setName(product.getName());
+        response.setDescription(product.getDescription());
+        response.setSku(product.getSku());
+        response.setPrice(product.getPrice());
+        response.setCategoryId(product.getCategory().getId());
+        response.setCategoryName(product.getCategory().getName());
+        response.setActive(product.isActive());
+        response.setCreatedAt(product.getCreatedAt());
+        response.setUpdatedAt(product.getUpdatedAt());
+
+        return response;
     }
 
 }

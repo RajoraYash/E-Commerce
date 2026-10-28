@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import com.yash.ecommerce_backend.common.exception.ProductNotFoundException;
 import com.yash.ecommerce_backend.common.exception.CategoryNotFoundException;
 import com.yash.ecommerce_backend.common.exception.DuplicateSkuException;
+
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,10 +43,6 @@ public class ProductServiceImpl implements ProductService {
     public Product getProductById(Long id){
         return productRepository.findById(id)
                 .orElseThrow(()-> new ProductNotFoundException("Product not found with id " + id));
-    }
-    @Override
-    public List<Product> getAllProducts(){
-        return productRepository.findAll();
     }
     @Override
     public Product updateProduct(Long id , Product product){
@@ -83,5 +81,20 @@ public class ProductServiceImpl implements ProductService {
     public Page<Product> getAllProducts(Pageable pageable){
         return productRepository.findAll(pageable);
     }
-
+    @Override
+    public Page<Product> getProductsByCategory(Long categoryId, Pageable pageable){
+        return productRepository.findByCategoryId(categoryId,pageable);
+    }
+    @Override
+    public Page<Product> getProductsByPriceRange(
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Pageable pageable
+    ){
+        return productRepository.findByPriceBetween(minPrice,maxPrice,pageable);
+    }
+    @Override
+    public Page<Product> searchProductsByName(String name, Pageable pageable){
+        return productRepository.findByNameContainingIgnoreCase(name,pageable);
+    }
 }
